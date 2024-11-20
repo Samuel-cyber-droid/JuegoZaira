@@ -1,4 +1,4 @@
-import pygame.sprite
+import pygame.sprite # type: ignore
 
 class DamageText(pygame.sprite.Sprite):
     def __init__(self, x, y, damage, font, color):
