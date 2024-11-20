@@ -1,4 +1,4 @@
-import pygame
+import pygame # type: ignore
 import constantes
 from personaje import Personaje
 from weapon import Weapon
@@ -24,6 +24,14 @@ pygame.init()
 
 # fuentes
 font = pygame.font.Font("assets//fonts//GravityBold8.ttf", 10)
+
+#energia
+corazon_vacion = pygame.image.load("assets//image//items//heart.png").convert_alpha()
+corazon_vacion = escalar_img(corazon_vacion, constantes.SCALA_CORAZON)
+corazon_mitad = pygame.image.load("assets//image//items//heartmid.png").convert_alpha()
+corazon_mitad = escalar_img(corazon_mitad, constantes.SCALA_CORAZON)
+corazon_lleno = pygame.image.load("assets//image//items//heartfull.png").convert_alpha()
+corazon_lleno = escalar_img(corazon_lleno, constantes.SCALA_CORAZON)
 
 # ventana
 ventana = pygame.display.set_mode((constantes.ANCHO_VENTANA, constantes.ALTO_VENTANA))
@@ -62,6 +70,12 @@ image_pistola = escalar_img(image_pistola, constantes.SCALA_ARMA)
 # balas
 image_balas = pygame.image.load("assets//image//weapons//bala.png")
 image_balas = escalar_img(image_balas, constantes.SCALA_BALA)
+
+def vida_jugador():
+    for i in range(4):
+        if jugador.energia >= ((i + 1)* 25):
+            ventana.blit(corazon_lleno, (5 + i * 50, 5))  
+
 
 # creacion del personaje
 jugador = Personaje(50, 50, animaciones, 100)
@@ -112,9 +126,9 @@ while run == True:
     if mover_derecha == True:
         delta_x = constantes.VELOCIDAD_MOVIMIENTO
     if mover_izquierda == True:
-        delta_x = constantes.VELOCIDAD_MOVIMIENTO
+        delta_x = -constantes.VELOCIDAD_MOVIMIENTO
     if mover_arriba == True:
-        delta_y = constantes.VELOCIDAD_MOVIMIENTO
+        delta_y = -constantes.VELOCIDAD_MOVIMIENTO
     if mover_abajo == True:
         delta_y = constantes.VELOCIDAD_MOVIMIENTO
 
@@ -140,6 +154,9 @@ while run == True:
 
     # actualizar damage text
     grupo_damage_text.update()
+
+    # dibujar energia
+    vida_jugador()
 
     # dibujar arma
     pistola.dibujar(ventana)
