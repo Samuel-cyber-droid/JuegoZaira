@@ -26,3 +26,7 @@ VELOCIDAD_BALA =20
 #enemigos
 SCALA_ENEMIGO = 1.5
 COLOR = (203, 50, 52)
+
+#energia
+
+SCALAR_CORAZON = 1
