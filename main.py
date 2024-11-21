@@ -6,6 +6,7 @@ from textos import DamageText
 import os
 from items import Item
 import csv
+from mundo import Mundo
 
 
 # funcion para escalar las imagenes
@@ -87,6 +88,12 @@ for i in range(num_coins_image):
     img = escalar_img(img, 1)
     coin_image.append(img)
 
+# crear mundo
+tile_list = []
+for x in range(constantes.TILE_TYPES):
+    tile_image = pygame.image.load(f"assets//tiles//{x}.png")
+    tile_image = pygame.transform.scale(tile_image, (constantes.TILE_SIZE, constantes.TILE_SIZE))
+    tile_list.append(tile_image)
 
 def dibujar_texto(texto, fuente, color, x, y):
     img = fuente.render(texto, True, color)
@@ -95,21 +102,28 @@ def dibujar_texto(texto, fuente, color, x, y):
 def vida_jugador():
     for i in range(4):
         if jugador.energia >= ((i + 1)* 25):
-            ventana.blit(corazon_lleno, (5 + i * 50, 5))  
+            ventana.blit(corazon_lleno, (5 + i * 50, 5)) 
 
-worlf_data = []
+world_data = []
 
+world = Mundo()
+world.process_data(world_data, tile_list)
+
+def dibujar_grid():
+    for x in range(30):
+        pygame.draw.line(ventana. contstantes.COLOR_BLANCO, (x * constantes.TILE_SIZE, 0), (x * constantes.TILE_SIZE, constantes.ALTO_VENTANA))
+        pygame.draw.line(ventana. contstantes.COLOR_BLANCO, (0, x * constantes.TILE_SIZE), (constantes.ANCHO_VENTANA, x * constantes.TILE_SIZE))
 
 for filas in range(constantes.FILAS):
     filas = [5] * constantes.COLUMNAS 
-    worlf_data.append(filas)
+    world_data.append(filas)
 
 # cargar nivel
 with open("niveles//mapaa.csv", newline='') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for x, fila in enumerate(reader):
-        for y, tile in enumerate(fila):
-            worlf_data[x][y] = int(columna)
+        for y, tile in enumerate(constantes.FILAS):
+            world_data[x][y] = int(constantes.COLUMNAS)
 
 # creacion del personaje
 jugador = Personaje(50, 50, animaciones, 100)
@@ -160,6 +174,9 @@ while run == True:
     # controlar el framerate
     reloj.tick(constantes.FPS)
     ventana.fill(constantes.COLOR_BG)
+
+    # dibujar grid
+    dibujar_grid()
 
     # calcular el movimiento del jugador
     delta_x = 0
@@ -214,6 +231,9 @@ while run == True:
 
     #dibujo de jugador
     jugador.dibujar(ventana)
+
+    #dibujar mundo
+    world.draw(ventana)
 
     # dibujar damage text
     grupo_damage_text.draw(ventana)
