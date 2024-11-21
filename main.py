@@ -5,6 +5,8 @@ from weapon import Weapon
 from textos import DamageText
 import os
 from items import Item
+import csv
+
 
 # funcion para escalar las imagenes
 def escalar_img(image, scale):
@@ -95,6 +97,19 @@ def vida_jugador():
         if jugador.energia >= ((i + 1)* 25):
             ventana.blit(corazon_lleno, (5 + i * 50, 5))  
 
+worlf_data = []
+
+
+for filas in range(constantes.FILAS):
+    filas = [5] * constantes.COLUMNAS 
+    worlf_data.append(filas)
+
+# cargar nivel
+with open("niveles//mapaa.csv", newline='') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+    for x, fila in enumerate(reader):
+        for y, tile in enumerate(fila):
+            worlf_data[x][y] = int(columna)
 
 # creacion del personaje
 jugador = Personaje(50, 50, animaciones, 100)
