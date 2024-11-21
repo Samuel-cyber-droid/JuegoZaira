@@ -29,4 +29,4 @@ COLOR = (203, 50, 52)
 
 #energia
 
-SCALAR_CORAZON = 1
+SCALAR_CORAZON = 2
