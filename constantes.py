@@ -28,5 +28,8 @@ SCALA_ENEMIGO = 1.5
 COLOR = (203, 50, 52)
 
 #energia
-
 SCALAR_CORAZON = 2
+
+# worlf
+FILAS = 20
+COLUMNAS = 30
