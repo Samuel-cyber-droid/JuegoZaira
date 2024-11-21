@@ -4,6 +4,7 @@ from personaje import Personaje
 from weapon import Weapon
 from textos import DamageText
 import os
+from items import Item
 
 # funcion para escalar las imagenes
 def escalar_img(image, scale):
@@ -26,12 +27,12 @@ pygame.init()
 font = pygame.font.Font("assets//fonts//GravityBold8.ttf", 10)
 
 #energia
-corazon_vacion = pygame.image.load("assets//image//items//heart.png").convert_alpha()
-corazon_vacion = escalar_img(corazon_vacion, constantes.SCALA_CORAZON)
-corazon_mitad = pygame.image.load("assets//image//items//heartmid.png").convert_alpha()
-corazon_mitad = escalar_img(corazon_mitad, constantes.SCALA_CORAZON)
-corazon_lleno = pygame.image.load("assets//image//items//heartfull.png").convert_alpha()
-corazon_lleno = escalar_img(corazon_lleno, constantes.SCALA_CORAZON)
+corazon_vacion = pygame.image.load("assets//image//items//heart.png")
+corazon_vacion = escalar_img(corazon_vacion, constantes.SCALAR_CORAZON)
+corazon_mitad = pygame.image.load("assets//image//items//heartmid.png")
+corazon_mitad = escalar_img(corazon_mitad, constantes.SCALAR_CORAZON)
+corazon_lleno = pygame.image.load("assets//image//items//heartfull.png")
+corazon_lleno = escalar_img(corazon_lleno, constantes.SCALAR_CORAZON)
 
 # ventana
 ventana = pygame.display.set_mode((constantes.ANCHO_VENTANA, constantes.ALTO_VENTANA))
@@ -71,6 +72,24 @@ image_pistola = escalar_img(image_pistola, constantes.SCALA_ARMA)
 image_balas = pygame.image.load("assets//image//weapons//bala.png")
 image_balas = escalar_img(image_balas, constantes.SCALA_BALA)
 
+# cargar imagenes items
+posicion_roja = pygame.image.load("assets//image//items//potion.png")
+posicion_roja = escalar_img(posicion_roja, 1)
+
+# cargar imagenes monedas
+coin_image = []
+ruta_img = "assets//image//items//coin"
+num_coins_image = contar_elementos(ruta_img)
+for i in range(num_coins_image):
+    img = pygame.image.load(f"assets//image//items//coin//coin_{i + 1}.png")
+    img = escalar_img(img, 1)
+    coin_image.append(img)
+
+
+def dibujar_texto(texto, fuente, color, x, y):
+    img = fuente.render(texto, True, color)
+    ventana.blit(img, (x, y))
+
 def vida_jugador():
     for i in range(4):
         if jugador.energia >= ((i + 1)* 25):
@@ -99,6 +118,14 @@ pistola = Weapon(image_pistola, image_balas)
 grupo_balas = pygame.sprite.Group()
 grupo_damage_text = pygame.sprite.Group()
 
+# crear grupo de items
+grupo_items = pygame.sprite.Group()
+
+coin = Item(350, 25, 0, coin_image)
+potion = Item(380, 55, 1, [posicion_roja])
+
+grupo_items.add(coin)
+grupo_items.add(potion)
 
 # definir las variables de movimiento
 mover_arriba = False
@@ -152,8 +179,17 @@ while run == True:
             dt = DamageText(pos_damage.centerx, pos_damage.centery, str(damage), font, constantes.COLOR)
             grupo_damage_text.add(dt)
 
+    #dibujar textos
+    dibujar_texto(f"Score: {jugador.score}", font, (255, 255, 0), 700, 5)
+
     # actualizar damage text
     grupo_damage_text.update()
+
+    # actualizar items
+    grupo_items.update(jugador)
+
+    # dibujar items
+    grupo_items.draw(ventana)
 
     # dibujar energia
     vida_jugador()
