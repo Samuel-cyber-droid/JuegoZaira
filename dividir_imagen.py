@@ -10,6 +10,8 @@ def divir_guardar_imagen(ruta_imagen, carpeta_destino, division_por_columna):
     tamano_cuadrado = ancho // division_por_columna
     division_por_fila = alto // tamano_cuadrado
 
+    os.makedirs(carpeta_destino, exist_ok=True)
+
     # dividir y guardar
     contador = 0
     for i in range(division_por_fila):
@@ -25,4 +27,4 @@ def divir_guardar_imagen(ruta_imagen, carpeta_destino, division_por_columna):
             nombre_archivo = f"title ({contador + 1}).png"
             cuadrado.save(os.path.join(carpeta_destino, nombre_archivo))
 
-divir_guardar_imagen("assets//tiles//mainlevbuild.png", "assets//tiles", 61)
+divir_guardar_imagen("assets\\tiles\\mainlevbuild.png", "assets\\tiles", 62)
