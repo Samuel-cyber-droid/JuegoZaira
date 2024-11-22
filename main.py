@@ -29,7 +29,7 @@ pygame.mixer.init()
 # fuentes
 font = pygame.font.Font("assets//fonts//GravityBold8.ttf", 10)
 font_inicio = pygame.font.Font("assets//fonts//GravityBold8.ttf", 30)
-font_titulo = pygame.font.Font("assets//fonts//GravityBold8.ttf", 75)
+font_titulo = pygame.font.Font("assets//fonts//GravityBold8.ttf", 60)
 
 
 #botones de inicio
@@ -40,10 +40,10 @@ text_boton_salir = font_inicio.render("Salir", True, constantes.COLOR_BLANCO)
 
 # panatalla inicio
 def pantalla_inicio():
-    ventana.fill(constantes.COLOR_BG)
+    ventana.fill(constantes.COLOR_INICIO)
     dibujar_texto("Zaira Bros", font_titulo, constantes.COLOR_BLANCO, constantes.ANCHO_VENTANA / 2 - 200, constantes.ALTO_VENTANA / 2 - 200)
     pygame.draw.rect(ventana, constantes.COLOR, boton_jugar)
-    pygame.draw.rect(ventana, constantes.COLOR_BLANCO, boton_salir)
+    pygame.draw.rect(ventana, constantes.COLOR, boton_salir)
     ventana.blit(text_boton_jugar, (boton_jugar.x + 50, boton_jugar.y + 10))
     ventana.blit(text_boton_salir, (boton_salir.x + 70, boton_salir.y + 10))
 
@@ -272,6 +272,6 @@ while run == True:
                 if event.key == pygame.K_s:
                     mover_abajo = False
 
-        pygame.display.update()
+    pygame.display.update()
 
 pygame.quit()
