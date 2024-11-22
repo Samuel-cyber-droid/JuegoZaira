@@ -39,3 +39,4 @@ TILE_TYPES = 100
 
 # botones
 COLOR_NEGRO = (0, 0, 0)
+COLOR_INICIO = (102, 0 , 153   )
