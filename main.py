@@ -5,8 +5,6 @@ from weapon import Weapon
 from textos import DamageText
 import os
 from items import Item
-import csv
-from mundo import Mundo
 
 
 # funcion para escalar las imagenes
@@ -26,8 +24,29 @@ def nombre_carpertas(directorio):
 
 pygame.init()
 
+pygame.mixer.init()
+
 # fuentes
 font = pygame.font.Font("assets//fonts//GravityBold8.ttf", 10)
+font_inicio = pygame.font.Font("assets//fonts//GravityBold8.ttf", 30)
+font_titulo = pygame.font.Font("assets//fonts//GravityBold8.ttf", 75)
+
+
+#botones de inicio
+boton_jugar = pygame.Rect(constantes.ANCHO_VENTANA / 2 - 100, constantes.ALTO_VENTANA / 2 - 50, 200, 50)
+boton_salir = pygame.Rect(constantes.ANCHO_VENTANA / 2 - 100, constantes.ALTO_VENTANA / 2 + 50, 200, 50)
+text_boton_jugar = font_inicio.render("Jugar", True, constantes.COLOR_NEGRO)
+text_boton_salir = font_inicio.render("Salir", True, constantes.COLOR_BLANCO)
+
+# panatalla inicio
+def pantalla_inicio():
+    ventana.fill(constantes.COLOR_BG)
+    dibujar_texto("Zaira Bros", font_titulo, constantes.COLOR_BLANCO, constantes.ANCHO_VENTANA / 2 - 200, constantes.ALTO_VENTANA / 2 - 200)
+    pygame.draw.rect(ventana, constantes.COLOR, boton_jugar)
+    pygame.draw.rect(ventana, constantes.COLOR_BLANCO, boton_salir)
+    ventana.blit(text_boton_jugar, (boton_jugar.x + 50, boton_jugar.y + 10))
+    ventana.blit(text_boton_salir, (boton_salir.x + 70, boton_salir.y + 10))
+
 
 #energia
 corazon_vacion = pygame.image.load("assets//image//items//heart.png")
@@ -88,13 +107,6 @@ for i in range(num_coins_image):
     img = escalar_img(img, 1)
     coin_image.append(img)
 
-# crear mundo
-tile_list = []
-for x in range(constantes.TILE_TYPES):
-    tile_image = pygame.image.load(f"assets//tiles//{x}.png")
-    tile_image = pygame.transform.scale(tile_image, (constantes.TILE_SIZE, constantes.TILE_SIZE))
-    tile_list.append(tile_image)
-
 def dibujar_texto(texto, fuente, color, x, y):
     img = fuente.render(texto, True, color)
     ventana.blit(img, (x, y))
@@ -103,27 +115,6 @@ def vida_jugador():
     for i in range(4):
         if jugador.energia >= ((i + 1)* 25):
             ventana.blit(corazon_lleno, (5 + i * 50, 5)) 
-
-world_data = []
-
-world = Mundo()
-world.process_data(world_data, tile_list)
-
-def dibujar_grid():
-    for x in range(30):
-        pygame.draw.line(ventana. contstantes.COLOR_BLANCO, (x * constantes.TILE_SIZE, 0), (x * constantes.TILE_SIZE, constantes.ALTO_VENTANA))
-        pygame.draw.line(ventana. contstantes.COLOR_BLANCO, (0, x * constantes.TILE_SIZE), (constantes.ANCHO_VENTANA, x * constantes.TILE_SIZE))
-
-for filas in range(constantes.FILAS):
-    filas = [5] * constantes.COLUMNAS 
-    world_data.append(filas)
-
-# cargar nivel
-with open("niveles//mapaa.csv", newline='') as csvfile:
-    reader = csv.reader(csvfile, delimiter=',')
-    for x, fila in enumerate(reader):
-        for y, tile in enumerate(constantes.FILAS):
-            world_data[x][y] = int(constantes.COLUMNAS)
 
 # creacion del personaje
 jugador = Personaje(50, 50, animaciones, 100)
@@ -165,113 +156,122 @@ mover_izquierda = False
 # controlar el framerate
 reloj = pygame.time.Clock()
 
-run = True
+pygame.mixer.music.load("assets//sounds//CriticalTheme.wav")
+pygame.mixer.music.play(-1)
 
+sonido_disparo = pygame.mixer.Sound("assets//sounds//disparo.wav")
+
+mostrar_inicio = True
+run = True
 while run == True:
 
+    if mostrar_inicio:
+        pantalla_inicio()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if boton_jugar.collidepoint(event.pos):
+                    mostrar_inicio = False
+                if boton_salir.collidepoint(event.pos):
+                    run = False
+    else:
+        # controlar el framerate
+        reloj.tick(constantes.FPS)
+        ventana.fill(constantes.COLOR_BG)
 
+        # calcular el movimiento del jugador
+        delta_x = 0
+        delta_y = 0
 
-    # controlar el framerate
-    reloj.tick(constantes.FPS)
-    ventana.fill(constantes.COLOR_BG)
+        if mover_derecha == True:
+            delta_x = constantes.VELOCIDAD_MOVIMIENTO
+        if mover_izquierda == True:
+            delta_x = -constantes.VELOCIDAD_MOVIMIENTO
+        if mover_arriba == True:
+            delta_y = -constantes.VELOCIDAD_MOVIMIENTO
+        if mover_abajo == True:
+            delta_y = constantes.VELOCIDAD_MOVIMIENTO
 
-    # dibujar grid
-    dibujar_grid()
+        # actualizar la posicion del jugador
+        jugador.movimiento(delta_x, delta_y)
 
-    # calcular el movimiento del jugador
-    delta_x = 0
-    delta_y = 0
+        # actualizar estado de jugador
+        jugador.update()
 
-    if mover_derecha == True:
-        delta_x = constantes.VELOCIDAD_MOVIMIENTO
-    if mover_izquierda == True:
-        delta_x = -constantes.VELOCIDAD_MOVIMIENTO
-    if mover_arriba == True:
-        delta_y = -constantes.VELOCIDAD_MOVIMIENTO
-    if mover_abajo == True:
-        delta_y = constantes.VELOCIDAD_MOVIMIENTO
+        # actualizar estado de enemigo
+        for ene in lista_enemigos:
+            ene.update()
 
-    # actualizar la posicion del jugador
-    jugador.movimiento(delta_x, delta_y)
+        # actualizar estado de arma
+        bala = pistola.update(jugador)
+        if bala:
+            grupo_balas.add(bala)
+            sonido_disparo.play()
+        for bala in grupo_balas:
+            damage, pos_damage = bala.update(lista_enemigos)
+            if damage:
+                dt = DamageText(pos_damage.centerx, pos_damage.centery, str(damage), font, constantes.COLOR)
+                grupo_damage_text.add(dt)
 
-    # actualizar estado de jugador
-    jugador.update()
+        #dibujar textos
+        dibujar_texto(f"Score: {jugador.score}", font, (255, 255, 0), 700, 5)
 
-    # actualizar estado de enemigo
-    for ene in lista_enemigos:
-        ene.update()
+        # actualizar damage text
+        grupo_damage_text.update()
 
-    # actualizar estado de arma
-    bala = pistola.update(jugador)
-    if bala:
-        grupo_balas.add(bala)
-    for bala in grupo_balas:
-        damage, pos_damage = bala.update(lista_enemigos)
-        if damage:
-            dt = DamageText(pos_damage.centerx, pos_damage.centery, str(damage), font, constantes.COLOR)
-            grupo_damage_text.add(dt)
+        # actualizar items
+        grupo_items.update(jugador)
 
-    #dibujar textos
-    dibujar_texto(f"Score: {jugador.score}", font, (255, 255, 0), 700, 5)
+        # dibujar items
+        grupo_items.draw(ventana)
 
-    # actualizar damage text
-    grupo_damage_text.update()
+        # dibujar energia
+        vida_jugador()
 
-    # actualizar items
-    grupo_items.update(jugador)
+        # dibujar arma
+        pistola.dibujar(ventana)
 
-    # dibujar items
-    grupo_items.draw(ventana)
+        #dibujo de jugador
+        jugador.dibujar(ventana)
 
-    # dibujar energia
-    vida_jugador()
+        # dibujar damage text
+        grupo_damage_text.draw(ventana)
 
-    # dibujar arma
-    pistola.dibujar(ventana)
+        # dibujar enemigo
+        for ene in lista_enemigos:
+            ene.dibujar(ventana)
 
-    #dibujo de jugador
-    jugador.dibujar(ventana)
+        # dibujar balas
+        for bala in grupo_balas:
+            bala.dibujar(ventana)
 
-    #dibujar mundo
-    world.draw(ventana)
+        # cerrar ventana
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
 
-    # dibujar damage text
-    grupo_damage_text.draw(ventana)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_a:
+                    mover_izquierda = True
+                if event.key == pygame.K_d:
+                    mover_derecha = True
+                if event.key == pygame.K_w:
+                    mover_arriba = True
+                if event.key == pygame.K_s:
+                    mover_abajo = True
 
-    # dibujar enemigo
-    for ene in lista_enemigos:
-        ene.dibujar(ventana)
+            # cuando se suelta la tecla
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_a:
+                    mover_izquierda = False
+                if event.key == pygame.K_d:
+                    mover_derecha = False
+                if event.key == pygame.K_w:
+                    mover_arriba = False
+                if event.key == pygame.K_s:
+                    mover_abajo = False
 
-    # dibujar balas
-    for bala in grupo_balas:
-        bala.dibujar(ventana)
-
-    # cerrar ventana
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_a:
-                mover_izquierda = True
-            if event.key == pygame.K_d:
-                mover_derecha = True
-            if event.key == pygame.K_w:
-                mover_arriba = True
-            if event.key == pygame.K_s:
-                mover_abajo = True
-
-        # cuando se suelta la tecla
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_a:
-                mover_izquierda = False
-            if event.key == pygame.K_d:
-                mover_derecha = False
-            if event.key == pygame.K_w:
-                mover_arriba = False
-            if event.key == pygame.K_s:
-                mover_abajo = False
-
-    pygame.display.update()
+        pygame.display.update()
 
 pygame.quit()
